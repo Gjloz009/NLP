@@ -14,8 +14,8 @@ necesario tener registro en la api de twiter para poder ddescargar los proyectos
 import tweepy
 # Agregamos las llaves necesarias 
 # nunca dejar estas llaves publicas
-consumer_key = "intorduce tus llaves"
-consumer_secret = 'introduce la otra lllavve'
+consumer_key = "intorduce tus llaves:que cambia"
+consumer_secret = 'introduce la otra lllavveaaaaa'
 accces_key = 'tres llaves'
 acces_secret = 'ultima llave'
 
