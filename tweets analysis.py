@@ -14,6 +14,11 @@ necesario tener registro en la api de twiter para poder ddescargar los proyectos
 import tweepy
 # Agregamos las llaves necesarias 
 # nunca dejar estas llaves publicas
+# consumer_key = "intorduce tus llaves:que cambia"
+# consumer_secret = 'introduce la otra lllavveaaaaa'
+# accces_key = 'tres llaves'
+# acces_secret = 'ultima llave'
+# nunca dejar estas llaves publicas
 consumer_key = "intorduce tus llaves:que cambia"
 consumer_secret = 'introduce la otra lllavveaaaaa'
 accces_key = 'tres llaves'
@@ -64,7 +69,7 @@ for tweet in new_tweets:
     }
 
     lista.append(refined_tweet)
-    
+
 # limpiamos un poco los valores de hashtag y user mention
 for i in range(len(lista)):
 
