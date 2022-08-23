@@ -20,4 +20,10 @@ accces_key = 'tres llaves'
 acces_secret = 'ultima llave'
 
 # autenticación de la api
-auth =
+auth = tweepy.OAuthHandler(consumer_key,consumer_secret)
+auth.set_access_token(accces_key,acces_secret)
+
+# creando un objeto api
+api = tweepy.API(auth)
+
+# si esto ya salío bien ya tenemos acceso a los dferentes twwets
