@@ -43,6 +43,8 @@ tw_truncated = tmp_01.truncated
 tw_truncated.agg(['count','nunique']) #no hay valores nulos, 
 #son dos categorias
 tw_truncated.value_counts()
+tmp_01.value_counts(['lang','truncated'])
+
 '''
 False    3207
 True      395
@@ -60,13 +62,13 @@ es    False         127
 entonces si tenemos tweets truncados de nuestro
 idioma principal
 '''
-tmp_01.value_counts(['lang','truncated'])
 
 # vamos por entities_hashtags 
 tw_hashtags = tmp_01.entities_hashtags
 tw_hashtags.astype('string')
 tw_truncated.agg(['shape','count','nunique'])
 tw_hashtags.value_counts()
+tmp_01.value_counts(['lang','entities_hashtags'])
 
 '''
 TOP 5:
@@ -87,11 +89,76 @@ en    Anonymous               41
 
 es de notar cómo se distribuyen.
 '''
+# vamos por el campo entities user mentions
+tw_user_mentions = tmp_01.entities_user_mentions
+tw_user_mentions.agg(['shape','count','nunique']) #tenemos valores nulos
+# son 2885 valores no nulos y 2014 valores unicos 
+tw_user_mentions.value_counts()
+'''
+TOP 5:
+nexta_tv          51
+olex_scherba      36
+PMoelleken        32
+YourAnonOne       26
+Mediavenir        25
 
-tmp_01.value_counts(['lang','entities_hashtags'])
+podriamos ver quienes son y cual es la relevancia
+dentro del conflicto. Es de investigar las personas
+relevantes dentro de este conflicto, cómo lo 
+pueden ser el presidente, primer ministro, etc.
+'''
+# vamos ahora por entitites_urls 
+tw_urls = tmp_01.entities_urls
+tw_urls.agg(['shape','count','nunique']) #no hay valores nulos
+# 736 valores unicos 
+tw_urls.value_counts() 
+'''
+la mayoria no contienen elementos, sería bueno inpeccionar que 
+se refiere todos estos urls , si son fotos o que son.
+Tambien hay que darle limpieza pues contienen mas valores.
+'''
 
-# ahora vamos a ver cuantos tweets por pais tenemos 
+# vamos a entrar con el campo geo 
+tw_geo = tmp_01.geo
+# son 3602 valores  
+tw_geo.count() # son puros valores NaN
+'''ESTA COLUMNA ES INSERVIBLE'''
 
+#vamos por la columna coordinate
+tw_cord = tmp_01.coordinates
+tw_cord.agg(['shape','count','nunique']) #no hay valores nulos
+# 736 valores unicos 
+tw_cord.value_counts()
+tw_cord.sample(5)
+'''ESTA COLUMNA NO SIRVE'''
+
+# vamos por la columna retweet count 
+tw_rt_cnt = tmp_01.retweet_count
+tw_rt_cnt.agg(['shape','count','nunique']) #no hay valores nulos
+# 1080 valores unicos 
+tw_rt_cnt.value_counts()
+
+'''
+La distribución muestra que 
+son más los tweets que no tienen relevacia 
+son solo tweets únicos, si tuvieramos manera de
+ver quien escribión los tweets relevantes
+sería un buen guiño.
+'''
+
+# vamos por la columna favorite count 
+tw_fv_cnt = tmp_01.favorite_count
+tw_fv_cnt.agg(['shape','count','nunique']) #no hay valores nulos
+# 58 valores unicos 
+tw_fv_cnt.value_counts()
+
+'''
+De igual manera la distribución es inversa , es decir
+son más los tweets sin relevancia
+'''
+
+
+# ahora vamos a ver el campo lang 
 tw_lang = tmp_01.lang
 tw_lang.shape #tenemos 3602 valores totales
 tw_lang.count() #tenemos 3602 valores no nulos
@@ -114,12 +181,17 @@ pueden trabajar bajo el análisis que esta-
 mos proponiendo. Por primera instancia tra-
 bajaremos con ingles.
 '''
+# vamos con el ultimo campo place 
+tw_place = tmp_01.place
+tw_place.agg(['shape','count','nunique']) #18 valores no nulos solamente
+# 18 valores unicos 
+tw_place.value_counts()
+'''
+Aunque solo tenemos 18 valores no nulos, 
+podríamos ver cual es el contenido el numero de 
+rt , el numero de fv y trater de ver si existe cierta
+relación.
+También se necesita hacer limpieza de los valores'''
 
-# vamos a entrar con el campo geo 
-
-tw_geo = tmp_01.geo
-# son 3602 valores  
-tw_geo.count() # son puros valores NaN
-'''ESTA COLUMNA ES INSERVIBLE'''
 
 
