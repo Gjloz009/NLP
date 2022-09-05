@@ -4,6 +4,9 @@ que tenemos
 
 '''
 # importamos la tabla que tenemos 
+from ast import pattern
+from pickletools import read_uint1
+from queue import Empty
 import pandas as pd
 
 tmp_01 = pd.read_csv(
@@ -212,5 +215,49 @@ tw_urls[1116][0]
 prueba = tw_urls.iloc[1116]
 prueba[0]
 type(prueba)
+len(prueba)
 
+# vamos con definir nuestro regex 
+import re 
+def x(stringg):
+    a = re.findall("'url':\\s'(.*?)',",stringg)
+    if len(a) != 0:
+        return a[0]
+    else:
+        return None
 
+pr = tw_urls.apply(x)
+
+# ya es solo hacerlo en el dataframe 
+
+# ahora vamos con la otra columna que se tienen que limpiar
+
+tw_place.sample(n=5)
+
+prueba_3 = tw_place.iloc[1348]
+
+type(prueba_3)
+def x_2(stringg):
+
+    a = re.findall("'country_code':\\s'(.*?)'",stringg)
+    if len(a) != 0:
+        return a[0]
+    else:
+        return None
+places_2=tw_place.astype('str')
+pr_2 =  places_2.apply(x_2)
+
+pr_2.iloc[1348]
+
+# ahora eliminamos las columnaas que no sirven y tendriamos nuestro data frame limpio
+# que son coordinates y geo 
+tmp_02 = tmp_01.drop(columns=['coordinates','geo'])
+tmp_02.columns
+# aplicamos las funciones creadas
+tmp_02['place'] = tmp_02['place'].astype('str')
+tmp_02['place'] = tmp_02['place'].apply(x_2)
+
+tmp_02['entities_urls'] = tmp_02['entities_urls'].apply(x)
+
+path = "D:/jafet/Github/RussoUkrainianWar_Dataset/prueba/"
+tmp_02.to_csv(f'{path}\{"tmp_02_limpio.csv"}')
