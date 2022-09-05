@@ -194,4 +194,23 @@ relación.
 También se necesita hacer limpieza de los valores'''
 
 
+'''
+####################################################
+
+
+Ahora vamos a crear un dataframe limpio, con el tipo
+de valores que consideramos los correctos y con el arreglo
+de las columnas que habiamos mencionado
+'''
+
+# vamos primero con entities urls 
+
+tw_urls.sample(n=4)
+tw_urls[1116][0]
+# vamos a tener que definirlo con una secuencia regex 
+
+prueba = tw_urls.iloc[1116]
+prueba[0]
+type(prueba)
+
 
