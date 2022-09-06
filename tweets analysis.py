@@ -242,30 +242,4 @@ tmp_02['entities_urls'] = tmp_02['entities_urls'].apply(x)
 path = "D:/jafet/Github/RussoUkrainianWar_Dataset/prueba/"
 # tmp_02.to_csv(f'{path}\{"tmp_02_limpio.csv"}')
 
-'''
-dada nuestras referencias nos podría interesar
-tener cada columna con un tipo de dato en especifico
-'''
-tmp_02 = pd.read_csv(
-    f'{path}\{"tmp_02_limpio.csv"}'
-    ,index_col='Unnamed: 0'
-    ,dtype={
-        'text':'str'
-        ,'created_at':'object'
-        ,'id':'int64'
-        ,'truncated':'bool'
-        ,'entities_hashtags':'str'
-        ,'entities_user_mentions':'str'
-        ,'entities_urls':'str'
-        ,'retweet_count':'int64'
-        ,'favorite_count':'int64'
-        ,'lang':'category'
-        ,'place':'category'
-        }
-    )
-
-# creamos la columna a su respectivo formato 
-tmp_02['created_at'] = pd.to_datetime(tmp_02['created_at'],utc=True)
-tmp_02['created_at'].isna().any() # No tenemos datos missing
-
 
