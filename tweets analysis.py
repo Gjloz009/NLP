@@ -1,15 +1,60 @@
 '''
-vamos a intentar a darle ya solución al problema
-que tenemos
+En este código vamos a darle revisión a los registros 
+que tenemos en cada una de las columnas. Daremos un primer
+conteo sobre que es lo que se tiene y en que formatos se 
+tienen para darle formato correcto. 
+
+Consideraciones y áreas de oportunidad:
+    - el código se puede reducir en longitud si se toman
+    los conteos por todo el df y no por series o columnas
+    individuales, tal vez con un arreglo tipo "pipe"
+    funcionaría.
+    - La limpieza y tratado que se le hacen a dos de las 
+    columnas del df pueden ser corregidos desdde la creac-
+    ión del archivo csv con el cual se genera el df
+    - 
+Tiempo de ejecución:
+00H:03M:00S
+'''
 
 '''
-# importamos la tabla que tenemos 
+**********MODULOS**********
+'''
 from ast import pattern
 from pickletools import read_uint1
 from queue import Empty
 import pandas as pd
-import re 
+import re
 
+
+'''
+**********FUNCIONES*********
+'''
+# vamos con definir nuestro regex para la limpieza de columnas
+def x(stringg):
+    a = re.findall("'url':\\s'(.*?)',",stringg)
+    if len(a) != 0:
+        return a[0]
+    else:
+        return None
+
+# vamos a definir el sig regex para limpieza de columnas
+def x_2(stringg):
+
+    a = re.findall("'country_code':\\s'(.*?)'",stringg)
+    if len(a) != 0:
+        return a[0]
+    else:
+        return None
+
+'''
+**********END FUNCIONES**********
+'''
+
+
+'''
+**********CODIGO**********
+'''
 tmp_01 = pd.read_csv(
     "D:/jafet/Github/RussoUkrainianWar_Dataset/prueba/tmp_02_pr2.csv"
     , index_col= 'Unnamed: 0'
@@ -19,7 +64,11 @@ tmp_01 = pd.read_csv(
 tmp_01.head(2)
 # la columna texto es muy amplia no nos deja visualizar 
 tmp_01.columns
+
 '''
+Recien importado el df estos son los valores con los cuales
+pandas
+
 text -> object 
 created_at -> object, fechas pero en texto
 id -> int64
@@ -35,8 +84,7 @@ lang -> object
 place -> object
 '''
 
-# vamos a entrar al campo id 
-
+# vamos a entrar al campo id y su revisión
 tw_id = tmp_01.id
 tw_id.shape # son 3602
 tw_id.count() # no hay valores nulls
@@ -93,6 +141,8 @@ en    Anonymous               41
 
 es de notar cómo se distribuyen.
 '''
+
+
 # vamos por el campo entities user mentions
 tw_user_mentions = tmp_01.entities_user_mentions
 tw_user_mentions.agg(['shape','count','nunique']) #tenemos valores nulos
@@ -111,6 +161,7 @@ dentro del conflicto. Es de investigar las personas
 relevantes dentro de este conflicto, cómo lo 
 pueden ser el presidente, primer ministro, etc.
 '''
+
 # vamos ahora por entitites_urls 
 tw_urls = tmp_01.entities_urls
 tw_urls.agg(['shape','count','nunique']) #no hay valores nulos
@@ -136,6 +187,8 @@ tw_cord.value_counts()
 tw_cord.sample(5)
 '''ESTA COLUMNA NO SIRVE'''
 
+
+
 # vamos por la columna retweet count 
 tw_rt_cnt = tmp_01.retweet_count
 tw_rt_cnt.agg(['shape','count','nunique']) #no hay valores nulos
@@ -149,6 +202,7 @@ son solo tweets únicos, si tuvieramos manera de
 ver quien escribión los tweets relevantes
 sería un buen guiño.
 '''
+
 
 # vamos por la columna favorite count 
 tw_fv_cnt = tmp_01.favorite_count
@@ -185,6 +239,8 @@ pueden trabajar bajo el análisis que esta-
 mos proponiendo. Por primera instancia tra-
 bajaremos con ingles.
 '''
+
+
 # vamos con el ultimo campo place 
 tw_place = tmp_01.place
 tw_place.agg(['shape','count','nunique']) #18 valores no nulos solamente
@@ -195,45 +251,19 @@ Aunque solo tenemos 18 valores no nulos,
 podríamos ver cual es el contenido el numero de 
 rt , el numero de fv y trater de ver si existe cierta
 relación.
-También se necesita hacer limpieza de los valores'''
+También se necesita hacer limpieza de los valores
 
-
-'''
-####################################################
 
 
 Ahora vamos a crear un dataframe limpio, con el tipo
 de valores que consideramos los correctos y con el arreglo
 de las columnas que habiamos mencionado
 '''
-
-# vamos primero con entities urls 
-
-# vamos con definir nuestro regex 
-def x(stringg):
-    a = re.findall("'url':\\s'(.*?)',",stringg)
-    if len(a) != 0:
-        return a[0]
-    else:
-        return None
-
-# ahora vamos con la otra columna que se tienen que limpiar
-
-type(prueba_3)
-def x_2(stringg):
-
-    a = re.findall("'country_code':\\s'(.*?)'",stringg)
-    if len(a) != 0:
-        return a[0]
-    else:
-        return None
-
-# ahora eliminamos las columnaas que no sirven y tendriamos nuestro data frame limpio
-# que son coordinates y geo 
+# son coordinates y geo las columnas que debemos eliminar 
 tmp_02 = tmp_01.drop(columns=['coordinates','geo'])
 tmp_02.columns
 
-# aplicamos las funciones creadas
+# aplicamos las funciones creadas para la limpieza de las columnas
 tmp_02['place'] = tmp_02['place'].astype('str')
 tmp_02['place'] = tmp_02['place'].apply(x_2)
 tmp_02['entities_urls'] = tmp_02['entities_urls'].apply(x)
@@ -242,4 +272,6 @@ tmp_02['entities_urls'] = tmp_02['entities_urls'].apply(x)
 path = "D:/jafet/Github/RussoUkrainianWar_Dataset/prueba/"
 # tmp_02.to_csv(f'{path}\{"tmp_02_limpio.csv"}')
 
-
+'''
+**********END CODIGO**********
+'''
