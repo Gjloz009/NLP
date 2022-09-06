@@ -8,6 +8,7 @@ from ast import pattern
 from pickletools import read_uint1
 from queue import Empty
 import pandas as pd
+import re 
 
 tmp_01 = pd.read_csv(
     "D:/jafet/Github/RussoUkrainianWar_Dataset/prueba/tmp_02_pr2.csv"
@@ -208,17 +209,7 @@ de las columnas que habiamos mencionado
 
 # vamos primero con entities urls 
 
-tw_urls.sample(n=4)
-tw_urls[1116][0]
-# vamos a tener que definirlo con una secuencia regex 
-
-prueba = tw_urls.iloc[1116]
-prueba[0]
-type(prueba)
-len(prueba)
-
 # vamos con definir nuestro regex 
-import re 
 def x(stringg):
     a = re.findall("'url':\\s'(.*?)',",stringg)
     if len(a) != 0:
@@ -226,15 +217,7 @@ def x(stringg):
     else:
         return None
 
-pr = tw_urls.apply(x)
-
-# ya es solo hacerlo en el dataframe 
-
 # ahora vamos con la otra columna que se tienen que limpiar
-
-tw_place.sample(n=5)
-
-prueba_3 = tw_place.iloc[1348]
 
 type(prueba_3)
 def x_2(stringg):
@@ -244,20 +227,45 @@ def x_2(stringg):
         return a[0]
     else:
         return None
-places_2=tw_place.astype('str')
-pr_2 =  places_2.apply(x_2)
-
-pr_2.iloc[1348]
 
 # ahora eliminamos las columnaas que no sirven y tendriamos nuestro data frame limpio
 # que son coordinates y geo 
 tmp_02 = tmp_01.drop(columns=['coordinates','geo'])
 tmp_02.columns
+
 # aplicamos las funciones creadas
 tmp_02['place'] = tmp_02['place'].astype('str')
 tmp_02['place'] = tmp_02['place'].apply(x_2)
-
 tmp_02['entities_urls'] = tmp_02['entities_urls'].apply(x)
 
+# guardamos todo en un nuevo dataframe para no estar haciendo este proceso 
 path = "D:/jafet/Github/RussoUkrainianWar_Dataset/prueba/"
-tmp_02.to_csv(f'{path}\{"tmp_02_limpio.csv"}')
+# tmp_02.to_csv(f'{path}\{"tmp_02_limpio.csv"}')
+
+'''
+dada nuestras referencias nos podría interesar
+tener cada columna con un tipo de dato en especifico
+'''
+tmp_02 = pd.read_csv(
+    f'{path}\{"tmp_02_limpio.csv"}'
+    ,index_col='Unnamed: 0'
+    ,dtype={
+        'text':'str'
+        ,'created_at':'object'
+        ,'id':'int64'
+        ,'truncated':'bool'
+        ,'entities_hashtags':'str'
+        ,'entities_user_mentions':'str'
+        ,'entities_urls':'str'
+        ,'retweet_count':'int64'
+        ,'favorite_count':'int64'
+        ,'lang':'category'
+        ,'place':'category'
+        }
+    )
+
+# creamos la columna a su respectivo formato 
+tmp_02['created_at'] = pd.to_datetime(tmp_02['created_at'],utc=True)
+tmp_02['created_at'].isna().any() # No tenemos datos missing
+
+
