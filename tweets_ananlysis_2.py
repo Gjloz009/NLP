@@ -9,6 +9,7 @@ interesa. Analizar texto.
     
 '''
 
+from os import pread
 import nltk
 import pandas as pd
 
@@ -53,6 +54,130 @@ texto.loc[texto.duplicated()].str.startswith('rt').all()
 # conteos no se vean afectados 
 texto = texto.drop_duplicates()
 '''
+Vamoas a utlizar la librería sentiment.vader.SentimentInensityAnalyzer
+ahora tenemos que revisar cómo es que esta constituida y de que forma 
+nosotros tenemos que ingresarle los datos.'''
+
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+# esta es la formaa en como se usa 
+prueba = texto[500]
+type(prueba)
+prueba
+a = SentimentIntensityAnalyzer().polarity_scores(prueba)
+type(a) # devuelve un diccionario 
+a.keys() #neg,neu,pos,compound
+
+# vamos a intentarlo todos asi sin modificar nada 
+
+puntuacion = texto.apply(SentimentIntensityAnalyzer().polarity_scores)
+df_prueba = pd.concat([texto,prueba],axis=1,str)
+
+pd.DataFrame.join(texto,puntuacion)
+ aver  = texto.append(puntuacion)
+
+ len(aver)
+len(texto)
+
+df = texto.to_frame()
+inex_prueba=df.index
+inex_prueba
+pr = texto.apply(SentimentIntensityAnalyzer().polarity_scores)
+df_2=pd.DataFrame(list(pr),index=inex_prueba)
+df_2
+df
+df_3 = pd.concat([df,df_2],axis=1)
+df_3
+df.shape
+df_2.shape
+df_2.iloc[1762]
+df_3.iloc[1762]
+df_3.shape
+df.iloc[1762]
+
+df_3['score'] = df_3['compound'].apply(lambda x: 'Positive' if x >= 0.05 else ('Negative' if x <=-0.05 else 'Neutral'))
+
+df_3[['compound','score']]
+
+df_3.value_counts(df_3['score'])
+'''
+score
+Positive    652
+Negative    623
+Neutral     489
+dtype: int64
+'''
+df_3['text'].loc[5]
+'''
+Ya tenemos un análisis de sentimiento en primera instancia
+sin limpiar nada del texto.
+según https://www.geeksforgeeks.org/python-sentiment-analysis-using-vader/
+The Compound score is a metric that calculates the sum of all the lexicon ratings which have been normalized between -1(most extreme negative) and +1 (most extreme positive).
+positive sentiment : (compound score >= 0.05) 
+neutral sentiment : (compound score > -0.05) and (compound score < 0.05) 
+negative sentiment : (compound score <= -0.05)'''
+
+# primero vamos a quitar lo que son rt @user: , https 
+
+
+
+
+df['compound']
+df
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 Proceso para utilizar la librería :
     -decidir si viene todo en una sola lista o si metemos tweet
     por tweet
@@ -88,8 +213,65 @@ len(texto_largo) #tenemos 222752
 tokens_01 = nltk.word_tokenize(texto_largo,language='english')
 len(tokens_01) #tenemos 43,038 tokens es una lista
 
+from random import sample
+
+sample(tokens_01,100)
+
 sorted(tokens_01)
 
+# vamos a seguir con el proceso de limpieza con lemantización 
+wnl = nltk.WordNetLemmatizer()
+tokens_01_wnl = [wnl.lemmatize(word) for word in tokens_01]
+len(tokens_01_wnl)
+
+len(sorted(set(tokens_01_wnl))) #tenemos 7599 caracteres únicos
+
+
+# vamos a ver como funciona con stop words 
+from nltk.corpus import stopwords
+stopwords.fileids()
+stopw = stopwords.words('english')
+tokens_01_wnl = [word for word in tokens_01_wnl if word not in stopw]
+len(tokens_01_wnl) # tenemos 32,371
+sorted(tokens_01_wnl)
+
+#  quitaremos signos de puntuación 
+import string
+list(string.punctuation)
+tokens_01_wnl_stp_pnt = [word for word in tokens_01_wnl if word not in list(string.punctuation)]
+len(tokens_01_wnl_stp_pnt) # tenemos 23,145
+sorted(tokens_01_wnl_stp_pnt)[1900:2201]
+ms_pnct = ['…','”','’','–','—','w…','u…',"''",'..','-…','...','``','‘','“', '‼️','||','«','»']
+tokens_01_wnl_stp_pnt = [word for word in tokens_01_wnl_stp_pnt if word not in ms_pnct]
+tokens_01_wnl_stp_pnt
+sorted(tokens_01_wnl_stp_pnt)
+len(sorted(set(tokens_01_wnl_stp_pnt))) # 7427 elementos 
+
+
+from nltk.sentiment import vader
+import re 
+a = vader.VaderConstants.REGEX_REMOVE_PUNCTUATION
+type(a)
+[x for x in a]
+[word for word in tokens_01_wnl_stp_pnt if  word not in  set(a.findall(texto_largo))]
+
+vader.negated(tokens_01_wnl_stp_pnt)
+vader.SentiText(tokens_01_wnl_stp_pnt,)
+
+from nltk.sentiment import SentimentIntensityAnalyzer
+analisis = SentimentIntensityAnalyzer
+texto_largo
+analisis.po
+
+analisis.unigram_word_feats(tokens_01_wnl_stp_pnt,top_n=10)
+'''
+Nos sirve:
+
+english
+spanish
+french
+dutch
+'''
 
 '''
 como es posible pensar y visualizar , aunque este método
@@ -131,8 +313,8 @@ que quisiera guardar y que no:
     - emoticones 
 que mas que mas que mas
 '''
-texto.sample(n=2)
-texto.loc[667]
+texto.sample(n=1)
+texto.loc[2024]
 1+2
 
 
@@ -164,6 +346,7 @@ fdist1.plot(50,cumulative=True)
 # vamos a ver como funciona con stop words 
 from nltk.corpus import stopwords
 stopwords.fileids()
+stopw = stopwords.words('english')
 '''
 Nos sirve:
 
@@ -172,7 +355,6 @@ spanish
 french
 dutch
 '''
-stopw = stopwords.words('english')
 
 # sin stopwords tenemos 0.74 por ciento de palabras totales 
 len([word for word in tweets if word not in stopw])/len(tweets)
@@ -183,8 +365,6 @@ puntuacion_symbols = ['']
 stopw
 fdist2 = nltk.FreqDist(tweets_wstp)
 fdist2.most_common(n=10)
-import string
-list(string.punctuation)
 
 # tenemos el 0.71 sin los signos de puntuacion 
 len([word for word in tweets_wstp if word not in list(string.punctuation)])/len(tweets_wstp)
