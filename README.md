@@ -7,8 +7,7 @@ sirve para una introducción al mundo de NLP y análisis de texto.
 
 ---
 UPDATES:
--07/09/2022: En este punto creamos un dashboard para la visualización de algunas métricas que creémos serán de gran ayuda para
-la compresión de nuestro dataset.
+- [link de updates](https://docs.google.com/document/d/1_Aw-lEmchlDwMZBSb72GNlPKkX8fHbPAuCZ5EEpx5Tk/edit?usp=sharing)
 ![](/imagen_1.png)
 
 ---
