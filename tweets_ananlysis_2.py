@@ -9,6 +9,7 @@ interesa. Analizar texto.
     
 '''
 
+from cgitb import text
 from os import pread
 import nltk
 import pandas as pd
@@ -70,36 +71,23 @@ a.keys() #neg,neu,pos,compound
 
 # vamos a intentarlo todos asi sin modificar nada 
 
-puntuacion = texto.apply(SentimentIntensityAnalyzer().polarity_scores)
-df_prueba = pd.concat([texto,prueba],axis=1,str)
+# vamos a hacer una función que nos haga este df y resultados solos 
+def creacion_df(serie):
+    df = serie.to_frame()
+    inex_prueba=df.index
 
-pd.DataFrame.join(texto,puntuacion)
- aver  = texto.append(puntuacion)
+    pr = serie.apply(SentimentIntensityAnalyzer().polarity_scores)
+    df_2=pd.DataFrame(list(pr),index=inex_prueba)
 
- len(aver)
-len(texto)
+    df_3 = pd.concat([df,df_2],axis=1)
 
-df = texto.to_frame()
-inex_prueba=df.index
-inex_prueba
-pr = texto.apply(SentimentIntensityAnalyzer().polarity_scores)
-df_2=pd.DataFrame(list(pr),index=inex_prueba)
-df_2
-df
-df_3 = pd.concat([df,df_2],axis=1)
-df_3
-df.shape
-df_2.shape
-df_2.iloc[1762]
-df_3.iloc[1762]
-df_3.shape
-df.iloc[1762]
+    df_3['score'] = df_3['compound'].apply(lambda x: 'Positive' if x >= 0.05 else ('Negative' if x <=-0.05 else 'Neutral'))
 
-df_3['score'] = df_3['compound'].apply(lambda x: 'Positive' if x >= 0.05 else ('Negative' if x <=-0.05 else 'Neutral'))
+    return df_3
 
-df_3[['compound','score']]
+df_prueba = creacion_df(texto)
+df_prueba.value_counts(df_prueba['score'])
 
-df_3.value_counts(df_3['score'])
 '''
 score
 Positive    652
@@ -107,7 +95,6 @@ Negative    623
 Neutral     489
 dtype: int64
 '''
-df_3['text'].loc[5]
 '''
 Ya tenemos un análisis de sentimiento en primera instancia
 sin limpiar nada del texto.
@@ -119,63 +106,82 @@ negative sentiment : (compound score <= -0.05)'''
 
 # primero vamos a quitar lo que son rt @user: , https 
 
+# por que lo estamos haciendo con df_3 
+import re
+def x_2(stringg):
+    if stringg.startswith('rt')==True:
+        a =re.findall(':(.*)',stringg)
+        return a[0]
+    else:
+        return stringg
+
+texto_2 = texto.apply(x_2)
+texto_2.astype('string')
+texto_2 = texto_2.str.strip()
+
+
+#este va a hacer nuestro caso 1
+# vamos a ver como funciona con stop words 
+from nltk.corpus import stopwords
+stopwords.fileids()
+stopw = stopwords.words('english')
+
+texto_3 = texto_2.str.split()
+texto_3 = texto_3.apply(lambda string: [word for word in string if word not in stopw])
+texto_3 = texto_3.apply(lambda lista: ' '.join(lista))
+
+df_4 = creacion_df(texto_3)
+
+df_4.value_counts(df_4['score'])
+'''
+score
+Positive    620
+Neutral     574
+Negative    570
+'''
+
+'''
+todo depende de la forma en que tokenizamos y de como
+funciona el modelo que crea estos scores
+'''
+
+import string
+
+wnl = nltk.WordNetLemmatizer()
+tokens_01 = nltk.word_tokenize(texto_largo,language='english')
+len(tokens_01) #tenemos 43,038 tokens es una lista
+
+tokens_01_wnl = [word for word in tokens_01_wnl if word not in stopw]
+
+# tookenizamos con la herramienta 
+texto_4 = texto_2.apply(lambda stringg: nltk.word_tokenize(stringg,language='english'))
+# quitamos stopwords 
+texto_4 = texto_4.apply( lambda string: [word for word in string if word not in stopw])
+# lemantizacion 
+texto_4 = texto_4.apply(lambda lista: [wnl.lemmatize(word) for word in lista])
+#puntuacion.
+texto_4 = texto_4.apply(lambda lista: [word for word in lista if word not in list(string.punctuation)])
+
+texto_4 = texto_4.apply(lambda lista: ' '.join(lista))
+df_5 = creacion_df(texto_4)
+df_5.value_counts(df_5['score'])
+'''
+score
+Positive    651
+Negative    582
+Neutral     531
+dtype: int64
+'''
 
 
 
-df['compound']
-df
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+'''
+no es el mejor proceso de limpieza , pero de acuerdo a
+las herramientas la forma en que se tokeniza es de influencia 
+a la hora de obtener resultados sobre un análisis de sentimiento
+utilizando la herramienta especificada '''
 
 '''
 Proceso para utilizar la librería :
@@ -197,73 +203,10 @@ Proceso para utilizar la librería :
     
     siento que la forma en que se importo no es la manera correcta
 '''
-# quitamos whitespaces a los lados 
-texto =  texto.str.strip()
-texto.sample(n=5)
-
-# hacemos solo un texto grande de nuesto sample 
-texto_largo = ' '.join([word for word in texto])
-
-len(texto_largo) #tenemos 222752 
-
-# vamos a probar diferentes formas de tokenizar para quedarnos con
-# la mejor 
-
-# tokenizacion base 
-tokens_01 = nltk.word_tokenize(texto_largo,language='english')
-len(tokens_01) #tenemos 43,038 tokens es una lista
-
-from random import sample
-
-sample(tokens_01,100)
-
-sorted(tokens_01)
-
-# vamos a seguir con el proceso de limpieza con lemantización 
-wnl = nltk.WordNetLemmatizer()
-tokens_01_wnl = [wnl.lemmatize(word) for word in tokens_01]
-len(tokens_01_wnl)
-
-len(sorted(set(tokens_01_wnl))) #tenemos 7599 caracteres únicos
 
 
-# vamos a ver como funciona con stop words 
-from nltk.corpus import stopwords
-stopwords.fileids()
-stopw = stopwords.words('english')
-tokens_01_wnl = [word for word in tokens_01_wnl if word not in stopw]
-len(tokens_01_wnl) # tenemos 32,371
-sorted(tokens_01_wnl)
-
-#  quitaremos signos de puntuación 
-import string
-list(string.punctuation)
-tokens_01_wnl_stp_pnt = [word for word in tokens_01_wnl if word not in list(string.punctuation)]
-len(tokens_01_wnl_stp_pnt) # tenemos 23,145
-sorted(tokens_01_wnl_stp_pnt)[1900:2201]
 ms_pnct = ['…','”','’','–','—','w…','u…',"''",'..','-…','...','``','‘','“', '‼️','||','«','»']
-tokens_01_wnl_stp_pnt = [word for word in tokens_01_wnl_stp_pnt if word not in ms_pnct]
-tokens_01_wnl_stp_pnt
-sorted(tokens_01_wnl_stp_pnt)
-len(sorted(set(tokens_01_wnl_stp_pnt))) # 7427 elementos 
 
-
-from nltk.sentiment import vader
-import re 
-a = vader.VaderConstants.REGEX_REMOVE_PUNCTUATION
-type(a)
-[x for x in a]
-[word for word in tokens_01_wnl_stp_pnt if  word not in  set(a.findall(texto_largo))]
-
-vader.negated(tokens_01_wnl_stp_pnt)
-vader.SentiText(tokens_01_wnl_stp_pnt,)
-
-from nltk.sentiment import SentimentIntensityAnalyzer
-analisis = SentimentIntensityAnalyzer
-texto_largo
-analisis.po
-
-analisis.unigram_word_feats(tokens_01_wnl_stp_pnt,top_n=10)
 '''
 Nos sirve:
 
@@ -379,133 +322,3 @@ tweets_wstp
 # podemos pasar esta lista a power bi para plotear
 # y también el vocabulario , los tokens y vocabulario 
 type(fdist3)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-texto.agg(['is_unique','shape']) #1764
-
-texto.head(6)
-texto.loc[1700]
-import re 
-1746-1352 #394
-texto.str.startswith('rt').sum() #tenemos 1352 tenemos que limpiar esto
-'''
- PASOS AREALIZAR:
- -Limpiar el texto:
-    -todos los textos con rt
-    -utlizar la librería para tokenizar y todo el resto
-
-'''
-
-texto.loc[texto.str.startswith('rt')].sample(n=5)
-prueba = texto.loc[72]
-prueba_2 = texto.loc[1895]
-re.findall(':.*',prueba_2)
-def x(stringg):
-    a = stringg.startswith('rt')
-    if a == True:
-        return re.sub('rt\s@.*:',r'',stringg).strip()
-    else:
-        return stringg
-def x_2(stringg):
-    if stringg.startswith('rt')==True:
-        a =re.findall(':.*',stringg)
-        return a[0]
-    else:
-        return stringg
-
-texto_2 = texto.apply(x_2)
-texto.is_unique
-
-texto_2.is_unique
-texto_2.loc[texto_2.duplicated().sum()]
-# solo hay un duplicado 
-texto_2.loc[1700]
-texto.loc[1700]
-texto_2 = texto_2.drop_duplicates()
-texto_2.is_unique
-texto_2.sample(n=5)
-texto_2 =texto_2.str.strip()
-
-def x(stringg):
-    a = re.findall("'url':\\s'(.*?)',",stringg)
-    if len(a) != 0:
-        return a[0]
-    else:
-        return None
-
-# aplicamos nuestra funcion 
-texto = texto.apply(x)
-
-# checamos si limpiamos bien 
-texto.str.startswith('rt').sum()
-# notamos que existen valores con rt 
-# notamos que ahora a la hora de hacer limpieza existen valores duplicados 
-texto.is_unique
-
-texto.duplicated().sum() # son solo seis valores duplicados
-
-texto.loc[texto.duplicated()]
-# 754 1700 1921 2661 3464 checar estos valores
-texto.sample(n=5)
-
-import nltk
-texto = texto.to_numpy()
-len(texto)
-texto[0]
-type(texto)
