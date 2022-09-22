@@ -128,6 +128,11 @@ stopw = stopwords.words('english')
 
 texto_3 = texto_2.str.split()
 texto_3 = texto_3.apply(lambda string: [word for word in string if word not in stopw])
+# lemantizacion 
+texto_3 = texto_3.apply(lambda lista: [wnl.lemmatize(word) for word in lista])
+#puntuacion.
+texto_3 = texto_3.apply(lambda lista: [word for word in lista if word not in list(string.punctuation)])
+
 texto_3 = texto_3.apply(lambda lista: ' '.join(lista))
 
 df_4 = creacion_df(texto_3)
@@ -135,9 +140,9 @@ df_4 = creacion_df(texto_3)
 df_4.value_counts(df_4['score'])
 '''
 score
-Positive    620
-Neutral     574
-Negative    570
+Positive    631
+Negative    569
+Neutral     564
 '''
 
 '''
